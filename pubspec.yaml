@@ -1,0 +1,55 @@
+name: lungisani
+description: Civic issue reporting app for Cape Town residents.
+
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '^3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Supabase
+  supabase_flutter: ^2.3.4
+
+  # Navigation
+  go_router: ^18.0.1
+
+  # State management
+  flutter_riverpod: ^3.4.3
+  riverpod_annotation: ^4.0.7
+
+  # Maps
+  flutter_map: ^8.3.2
+  latlong2: ^0.10.1
+
+  # Location
+  geolocator: ^14.0.3
+  geocoding: ^5.0.0
+
+  # Camera / gallery
+  image_picker: ^1.0.7
+
+  # UI helpers
+  cached_network_image: ^4.0.0
+  timeago: ^3.6.1
+  google_fonts: ^8.2.1
+
+  # Utils
+  uuid: ^4.3.3
+  cupertino_ui: any
+  material_ui: any
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  cupertino_icons: ^1.0.6
+  dependency_validator: ^5.1.0
+
+flutter:
+  uses-material-design: true
