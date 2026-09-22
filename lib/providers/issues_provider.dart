@@ -6,19 +6,35 @@ import '../services/vote_service.dart';
 final issueServiceProvider = Provider<IssueService>((ref) => IssueService());
 final voteServiceProvider = Provider<VoteService>((ref) => VoteService());
 
-// Stream all issues in real-time
 final issuesStreamProvider = StreamProvider<List<Issue>>((ref) {
   final issueService = ref.watch(issueServiceProvider);
   return issueService.streamIssues();
 });
 
-// Selected category filter
-final categoryFilterProvider = StateProvider<String?>((ref) => null);
+// Category filter
+class CategoryFilterNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+  void set(String? value) => state = value;
+  void clear() => state = null;
+}
 
-// Selected status filter
-final statusFilterProvider = StateProvider<String?>((ref) => null);
+final categoryFilterProvider =
+    NotifierProvider<CategoryFilterNotifier, String?>(
+        CategoryFilterNotifier.new);
 
-// Filtered issues based on category and status
+// Status filter
+class StatusFilterNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+  void set(String? value) => state = value;
+  void clear() => state = null;
+}
+
+final statusFilterProvider =
+    NotifierProvider<StatusFilterNotifier, String?>(StatusFilterNotifier.new);
+
+// Filtered issues
 final filteredIssuesProvider = Provider<AsyncValue<List<Issue>>>((ref) {
   final issuesAsync = ref.watch(issuesStreamProvider);
   final categoryFilter = ref.watch(categoryFilterProvider);
@@ -27,19 +43,13 @@ final filteredIssuesProvider = Provider<AsyncValue<List<Issue>>>((ref) {
   return issuesAsync.when(
     data: (issues) {
       var filtered = issues;
-
       if (categoryFilter != null) {
-        filtered = filtered
-            .where((i) => i.category == categoryFilter)
-            .toList();
+        filtered =
+            filtered.where((i) => i.category == categoryFilter).toList();
       }
-
       if (statusFilter != null) {
-        filtered = filtered
-            .where((i) => i.status == statusFilter)
-            .toList();
+        filtered = filtered.where((i) => i.status == statusFilter).toList();
       }
-
       return AsyncValue.data(filtered);
     },
     loading: () => const AsyncValue.loading(),
@@ -47,31 +57,27 @@ final filteredIssuesProvider = Provider<AsyncValue<List<Issue>>>((ref) {
   );
 });
 
-// Single issue by ID
 final issueByIdProvider =
     FutureProvider.family<Issue, String>((ref, id) async {
   final issueService = ref.watch(issueServiceProvider);
   return issueService.getIssueById(id);
 });
 
-// Issues by current user
 final userIssuesProvider =
     FutureProvider.family<List<Issue>, String>((ref, userId) async {
   final issueService = ref.watch(issueServiceProvider);
   return issueService.getIssuesByUser(userId);
 });
 
-// Voted issue IDs for current user
 final userVotedIssueIdsProvider = FutureProvider<List<String>>((ref) async {
   final voteService = ref.watch(voteServiceProvider);
   return voteService.getUserVotedIssueIds();
 });
 
 // Issue creation notifier
-class IssueNotifier extends StateNotifier<AsyncValue<void>> {
-  final IssueService _issueService;
-
-  IssueNotifier(this._issueService) : super(const AsyncValue.data(null));
+class IssueNotifier extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() => const AsyncValue.data(null);
 
   Future<Issue?> createIssue({
     required String category,
@@ -85,22 +91,19 @@ class IssueNotifier extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
     Issue? created;
     state = await AsyncValue.guard(() async {
-      created = await _issueService.createIssue(
-        category: category,
-        title: title,
-        description: description,
-        photoUrl: photoUrl,
-        lat: lat,
-        lng: lng,
-        suburb: suburb,
-      );
+      created = await ref.read(issueServiceProvider).createIssue(
+            category: category,
+            title: title,
+            description: description,
+            photoUrl: photoUrl,
+            lat: lat,
+            lng: lng,
+            suburb: suburb,
+          );
     });
     return created;
   }
 }
 
 final issueNotifierProvider =
-    StateNotifierProvider<IssueNotifier, AsyncValue<void>>((ref) {
-  final issueService = ref.watch(issueServiceProvider);
-  return IssueNotifier(issueService);
-});
+    NotifierProvider<IssueNotifier, AsyncValue<void>>(IssueNotifier.new);

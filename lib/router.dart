@@ -16,15 +16,11 @@ final router = GoRouter(
     final isAuth = session != null;
     final isAuthRoute =
         state.matchedLocation == '/login' ||
-            state.matchedLocation == '/register' ||
-            state.matchedLocation == '/';
+        state.matchedLocation == '/register' ||
+        state.matchedLocation == '/';
 
-    // Not logged in and trying to access protected route
     if (!isAuth && !isAuthRoute) return '/login';
-
-    // Logged in and trying to access auth routes
     if (isAuth && isAuthRoute) return '/home';
-
     return null;
   },
   routes: [
@@ -40,18 +36,25 @@ final router = GoRouter(
       path: '/register',
       builder: (context, state) => const RegisterScreen(),
     ),
-    GoRoute(
-      path: '/home',
-      builder: (context, state) => const HomeScreen(),
+    // Shell route for bottom nav screens
+    ShellRoute(
+      builder: (context, state, child) => child,
+      routes: [
+        GoRoute(
+          path: '/home',
+          builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: '/feed',
+          builder: (context, state) => const FeedScreen(),
+        ),
+        GoRoute(
+          path: '/profile',
+          builder: (context, state) => const ProfileScreen(),
+        ),
+      ],
     ),
-    GoRoute(
-      path: '/feed',
-      builder: (context, state) => const FeedScreen(),
-    ),
-    GoRoute(
-      path: '/profile',
-      builder: (context, state) => const ProfileScreen(),
-    ),
+    // Push routes — these get a back arrow automatically
     GoRoute(
       path: '/report',
       builder: (context, state) => const ReportScreen(),

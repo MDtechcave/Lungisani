@@ -7,12 +7,10 @@ final locationProvider = FutureProvider<Position?>((ref) async {
   if (!serviceEnabled) return null;
 
   LocationPermission permission = await Geolocator.checkPermission();
-
   if (permission == LocationPermission.denied) {
     permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) return null;
   }
-
   if (permission == LocationPermission.deniedForever) return null;
 
   return await Geolocator.getCurrentPosition(
@@ -28,9 +26,11 @@ final locationPermissionProvider = FutureProvider<LocationPermission>((ref) asyn
 });
 
 // Location notifier for manual refresh
-class LocationNotifier extends StateNotifier<AsyncValue<Position?>> {
-  LocationNotifier() : super(const AsyncValue.loading()) {
+class LocationNotifier extends Notifier<AsyncValue<Position?>> {
+  @override
+  AsyncValue<Position?> build() {
     _getLocation();
+    return const AsyncValue.loading();
   }
 
   Future<void> _getLocation() async {
@@ -44,7 +44,6 @@ class LocationNotifier extends StateNotifier<AsyncValue<Position?>> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) return null;
       }
-
       if (permission == LocationPermission.deniedForever) return null;
 
       return await Geolocator.getCurrentPosition(
@@ -61,6 +60,5 @@ class LocationNotifier extends StateNotifier<AsyncValue<Position?>> {
 }
 
 final locationNotifierProvider =
-    StateNotifierProvider<LocationNotifier, AsyncValue<Position?>>((ref) {
-  return LocationNotifier();
-});
+    NotifierProvider<LocationNotifier, AsyncValue<Position?>>(
+        LocationNotifier.new);

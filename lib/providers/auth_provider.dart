@@ -5,7 +5,7 @@ import '../services/auth_service.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) => AuthService());
 
-// Current session
+// Current session stream
 final authStateProvider = StreamProvider<AuthState>((ref) {
   final authService = ref.watch(authServiceProvider);
   return authService.authStateChanges;
@@ -29,11 +29,10 @@ final currentProfileProvider = FutureProvider<Profile?>((ref) async {
   return authService.getCurrentProfile();
 });
 
-// Auth notifier for login/logout/register actions
-class AuthNotifier extends StateNotifier<AsyncValue<void>> {
-  final AuthService _authService;
-
-  AuthNotifier(this._authService) : super(const AsyncValue.data(null));
+// Auth notifier using Notifier (Riverpod 3.x)
+class AuthNotifier extends Notifier<AsyncValue<void>> {
+  @override
+  AsyncValue<void> build() => const AsyncValue.data(null);
 
   Future<void> register({
     required String email,
@@ -42,7 +41,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     required String suburb,
   }) async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _authService.register(
+    state = await AsyncValue.guard(() =>
+        ref.read(authServiceProvider).register(
           email: email,
           password: password,
           fullName: fullName,
@@ -55,7 +55,8 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
     required String password,
   }) async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _authService.login(
+    state = await AsyncValue.guard(() =>
+        ref.read(authServiceProvider).login(
           email: email,
           password: password,
         ));
@@ -63,12 +64,10 @@ class AuthNotifier extends StateNotifier<AsyncValue<void>> {
 
   Future<void> logout() async {
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _authService.logout());
+    state = await AsyncValue.guard(() =>
+        ref.read(authServiceProvider).logout());
   }
 }
 
 final authNotifierProvider =
-    StateNotifierProvider<AuthNotifier, AsyncValue<void>>((ref) {
-  final authService = ref.watch(authServiceProvider);
-  return AuthNotifier(authService);
-});
+    NotifierProvider<AuthNotifier, AsyncValue<void>>(AuthNotifier.new);
