@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:geocoding/geocoding.dart';
+import 'package:geocoding/geocoding.dart' as geo;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../models/issue.dart';
@@ -73,7 +73,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
       setState(() => _pinLocation = LatLng(lat, lng));
 
       // Reverse geocode to get suburb
-      final placemarks = await placemarkFromCoordinates(lat, lng);
+      final placemarks = await geo.Geocoding().placemarkFromCoordinates(lat, lng);
       if (placemarks.isNotEmpty) {
         setState(() {
           _suburb = placemarks.first.subLocality ??
@@ -425,7 +425,7 @@ class _ReportScreenState extends ConsumerState<ReportScreen> {
                         setState(() => _pinLocation = point);
                         try {
                           final placemarks =
-                              await placemarkFromCoordinates(
+                              await geo.Geocoding().placemarkFromCoordinates(
                             point.latitude,
                             point.longitude,
                           );
