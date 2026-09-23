@@ -12,6 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
 
+  cupertino_icons: ^1.0.6
+
   # Supabase
   supabase_flutter: ^2.3.4
 
@@ -34,22 +36,16 @@ dependencies:
   image_picker: ^1.0.7
 
   # UI helpers
-  cached_network_image: ^4.0.0
   timeago: ^3.6.1
   google_fonts: ^8.2.1
 
   # Utils
   uuid: ^4.3.3
-  cupertino_ui: any
-  material_ui: any
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
-
-  cupertino_icons: ^1.0.6
-  dependency_validator: ^5.1.0
 
 flutter:
   uses-material-design: true
